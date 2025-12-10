@@ -1,348 +1,135 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>振り返りシート（ローカル保存）</title>
-  <style>
-    :root{ --bg:#f7f9fc; --card:#ffffff; --accent:#0ea5a4; --muted:#6b7280; --glass:rgba(255,255,255,0.7); }
-    *{box-sizing:border-box}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial; margin:0; background:linear-gradient(180deg,#eef2f7 0%,var(--bg) 100%); color:#111}
-    .container{max-width:960px;margin:36px auto;padding:20px}
-    header{display:flex;gap:16px;align-items:center;margin-bottom:18px}
-    header h1{font-size:20px;margin:0}
-    .card{background:var(--card);border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,0.06);padding:18px}
-
-    form.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-    label{display:flex;flex-direction:column;font-size:13px;color:var(--muted)}
-    input[type=text], input[type=date], textarea, select{margin-top:6px;padding:10px;border-radius:8px;border:1px solid #e6edf3;background:transparent;font-size:14px}
-    textarea{min-height:80px;resize:vertical}
-    .full{grid-column:1/-1}
-    .actions{display:flex;gap:8px;align-items:center;margin-top:10px}
-    button{background:var(--accent);color:white;padding:10px 14px;border-radius:10px;border:none;cursor:pointer}
-    button.ghost{background:transparent;color:var(--muted);border:1px solid #e6edf3}
-
-    .controls{display:flex;gap:8px;align-items:center;margin:14px 0}
-    .controls input, .controls select{padding:8px 10px;border-radius:8px;border:1px solid #e6edf3}
-
-    .list{margin-top:14px;display:grid;gap:10px}
-    .entry{display:grid;grid-template-columns:1fr 120px;gap:12px;padding:12px;border-radius:10px;background:linear-gradient(180deg,var(--glass),var(--card));border:1px solid #eef4f7}
-    .entry .left{min-width:0}
-    .meta{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
-    .meta strong{color:#0f172a}
-    .text-block{margin-top:8px;font-size:14px;line-height:1.45}
-    .entry .right{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
-    .small{font-size:12px;color:var(--muted)}
-
-    .hint{font-size:13px;color:var(--muted);margin-top:8px}
-
-    @media (max-width:740px){
-      form.grid{grid-template-columns:1fr}
-      .entry{grid-template-columns:1fr}
-      .entry .right{align-items:flex-start}
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>評価入力＋レーダーチャート</title>
+<style>
+ body { font-family: sans-serif; margin: 20px; }
+ h2 { margin-top: 40px; }
+ table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+ th, td { border: 1px solid #ccc; padding: 8px; vertical-align: top; }
+ input[type="number"] { width: 60px; }
+ #chartContainer { width: 400px; margin-top: 20px; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>振り返りシート（ブラウザローカル保存）</h1>
-      <div class="hint">※データはこのブラウザの <code>localStorage</code> に保存されます</div>
-    </header>
+<h1>評価入力フォーム</h1>
+<p>各評価項目の右側に 1〜7 の数字を入力してください。</p>
 
-    <section class="card">
-      <form id="reflectionForm" class="grid" autocomplete="off">
-        <label>
-          氏名
-          <input type="text" id="name" placeholder="例：山田 太郎" required />
-        </label>
-        <label>
-          日付
-          <input type="date" id="date" required />
-        </label>
+<table>
+ <tr>
+  <th style="width:70%">評価項目と基準</th>
+  <th style="width:30%">評価 (1〜7)</th>
+ </tr>
 
-        <label class="full">
-          今日できたこと
-          <textarea id="good" placeholder="良かったことを書いてください"></textarea>
-        </label>
-        <label class="full">
-          課題・反省
-          <textarea id="bad" placeholder="改善したい点を書いてください"></textarea>
-        </label>
-        <label class="full">
-          明日の目標
-          <textarea id="goal" placeholder="明日のtodoや目標を書いてください"></textarea>
-        </label>
+ <!-- 1. 発言頻度と貢献性 -->
+ <tr>
+  <td>
+   <strong>1. 発言頻度と貢献性</strong><br>
+   1: 発言なし<br>2: 稀、貢献ほぼなし<br>3: 時々発言、わずかに貢献<br>4: 定期的に発言、明確な貢献もあり<br>5: 頻繁に発言し方向性を導く<br>6: 非常に有益で議論を活性化<br>7: 議論の中心で質を高める
+  </td>
+  <td><input type="number" id="score1" min="1" max="7" /></td>
+ </tr>
 
-        <div class="actions full">
-          <button id="saveBtn" type="submit">保存</button>
-          <button id="clearForm" type="button" class="ghost">入力をクリア</button>
-          <div style="flex:1"></div>
-          <button id="exportBtn" type="button" class="ghost">エクスポート（JSON）</button>
-          <button id="importBtn" type="button" class="ghost">インポート（貼付け）</button>
-        </div>
-      </form>
+ <!-- 2. 積極性と影響力 -->
+ <tr>
+  <td>
+   <strong>2. 積極性と影響力</strong><br>
+   1: 消極的、影響なし<br>2: 限られた状況のみ<br>3: 積極性はあるが影響は限定的<br>4: チームの一部に影響<br>5: 複数に影響を与える<br>6: チーム議論に大きく影響<br>7: 議論の方向を変える
+  </td>
+  <td><input type="number" id="score2" min="1" max="7" /></td>
+ </tr>
 
-      <div class="hint">ヒント：他の端末と同期したい場合は、エクスポートして別のブラウザでインポートしてください。</div>
-    </section>
+ <!-- 3. コミュニケーション性と明瞭性 -->
+ <tr>
+  <td>
+   <strong>3. コミュニケーション性と明瞭性</strong><br>
+   1: 非常に不明瞭<br>2: 混乱を招く<br>3: 基本情報のみ伝わる<br>4: 大部分明確<br>5: 明瞭で正確<br>6: 非常に明確<br>7: 極めてクリア
+  </td>
+  <td><input type="number" id="score3" min="1" max="7" /></td>
+ </tr>
 
-    <section style="margin-top:18px">
-      <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-          <div style="display:flex;gap:8px;align-items:center">
-            <input id="filterName" placeholder="氏名でフィルタ（部分一致可）" />
-            <input id="searchText" placeholder="本文を検索" />
-            <select id="sortBy">
-              <option value="date_desc">日付（新しい順）</option>
-              <option value="date_asc">日付（古い順）</option>
-              <option value="name_asc">氏名（昇順）</option>
-              <option value="name_desc">氏名（降順）</option>
-            </select>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <button id="clearAll" class="ghost" type="button">全て削除</button>
-            <div class="small">合計：<span id="count">0</span> 件</div>
-          </div>
-        </div>
+ <!-- 4. 受容性と反応性 -->
+ <tr>
+  <td>
+   <strong>4. 受容性と反応性</strong><br>
+   1: 全く受容しない<br>2: 否定的発言が多い<br>3: 部分的に受容するが行動なし<br>4: 一定程度受け入れる<br>5: 積極的に受け入れる<br>6: 迅速に反応し建設的<br>7: 意見を求め改善を促す
+  </td>
+  <td><input type="number" id="score4" min="1" max="7" /></td>
+ </tr>
 
-        <div class="list" id="list"></div>
-      </div>
-    </section>
-  </div>
+ <!-- 5. 協調性とチーム連携性 -->
+ <tr>
+  <td>
+   <strong>5. 協調性とチーム連携性</strong><br>
+   1: 全く連携しない<br>2: 姿勢はあるが連携不足<br>3: 協力はあるが摩擦もある<br>4: 協調的で円滑に連携<br>5: 他者と円滑に進行<br>6: 高い協調性で推進力<br>7: 結束を高める発言
+  </td>
+  <td><input type="number" id="score5" min="1" max="7" /></td>
+ </tr>
 
-  <script>
-    // --- データモデル ---
-    // { id, name, date, good, bad, goal, createdAt }
+ <!-- ファシリテーター評価 -->
+ <tr>
+  <td>
+   <strong>ファシリテーター評価</strong><br>
+   1: 目的不明・脱線多い<br>2: 進行不十分・脱線多い<br>3: 部分的に目的明確・脱線もある<br>4: 意見を部分的に引き出す<br>5: 目的を提示し意見を出しやすい場を作る<br>6: 議論活性・脱線防止<br>7: 全員の意見を引き出し結論に導く
+  </td>
+  <td><input type="number" id="score6" min="1" max="7" /></td>
+ </tr>
+</table>
 
-    const LS_KEY = 'reflections_v1';
+<button onclick="drawChart()">レーダーチャート作成</button>
 
-    const $ = sel => document.querySelector(sel);
-    const $$ = sel => document.querySelectorAll(sel);
+<div id="chartContainer">
+ <canvas id="radarChart"></canvas>
+</div>
 
-    const nameInput = $('#name');
-    const dateInput = $('#date');
-    const goodInput = $('#good');
-    const badInput = $('#bad');
-    const goalInput = $('#goal');
-    const form = $('#reflectionForm');
-    const listEl = $('#list');
-    const countEl = $('#count');
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function drawChart() {
+  const labels = [
+    "発言頻度と貢献性",
+    "積極性と影響力",
+    "コミュニケーション性",
+    "受容性と反応性",
+    "協調性と連携性",
+    "ファシリテーター適性"
+  ];
 
-    const filterName = $('#filterName');
-    const searchText = $('#searchText');
-    const sortBy = $('#sortBy');
+  const data = [
+    Number(document.getElementById("score1").value || 0),
+    Number(document.getElementById("score2").value || 0),
+    Number(document.getElementById("score3").value || 0),
+    Number(document.getElementById("score4").value || 0),
+    Number(document.getElementById("score5").value || 0),
+    Number(document.getElementById("score6").value || 0)
+  ];
 
-    // 初期化
-    (function init(){
-      // date default to today
-      const today = new Date().toISOString().slice(0,10);
-      dateInput.value = today;
+  const ctx = document.getElementById("radarChart");
 
-      renderList();
-    })();
-
-    // --- storage helpers ---
-    function loadAll(){
-      try{
-        const raw = localStorage.getItem(LS_KEY);
-        if(!raw) return [];
-        return JSON.parse(raw);
-      }catch(e){
-        console.error('load error',e);
-        return [];
+  new Chart(ctx, {
+    type: "radar",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "評価レーダーチャート",
+        data: data,
+        fill: true,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      scales: {
+        r: {
+          min: 0,
+          max: 7,
+          ticks: { stepSize: 1 }
+        }
       }
     }
-    function saveAll(arr){
-      localStorage.setItem(LS_KEY, JSON.stringify(arr));
-    }
+  });
+}
+</script>
 
-    // --- save ---
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      const editingId = form.getAttribute('data-editing');
-      const payload = {
-        id: editingId || generateId(),
-        name: nameInput.value.trim(),
-        date: dateInput.value,
-        good: goodInput.value.trim(),
-        bad: badInput.value.trim(),
-        goal: goalInput.value.trim(),
-        createdAt: new Date().toISOString()
-      };
-
-      if(!payload.name || !payload.date){
-        alert('氏名と日付は必須です。');
-        return;
-      }
-
-      const arr = loadAll();
-      if(editingId){
-        const idx = arr.findIndex(x=>x.id===editingId);
-        if(idx>-1) arr[idx] = payload;
-        form.removeAttribute('data-editing');
-      }else{
-        arr.push(payload);
-      }
-      saveAll(arr);
-      form.reset();
-      // restore date to today
-      dateInput.value = new Date().toISOString().slice(0,10);
-      renderList();
-    });
-
-    $('#clearForm').addEventListener('click', ()=>{
-      form.reset();
-      dateInput.value = new Date().toISOString().slice(0,10);
-      form.removeAttribute('data-editing');
-    });
-
-    // --- render ---
-    function renderList(){
-      const arr = loadAll();
-      const fName = filterName.value.trim().toLowerCase();
-      const q = searchText.value.trim().toLowerCase();
-
-      let results = arr.slice();
-
-      if(fName){
-        results = results.filter(r => r.name.toLowerCase().includes(fName));
-      }
-      if(q){
-        results = results.filter(r => (
-          r.name + ' ' + r.good + ' ' + r.bad + ' ' + r.goal
-        ).toLowerCase().includes(q));
-      }
-
-      switch(sortBy.value){
-        case 'date_asc': results.sort((a,b)=> a.date.localeCompare(b.date)); break;
-        case 'date_desc': results.sort((a,b)=> b.date.localeCompare(a.date)); break;
-        case 'name_asc': results.sort((a,b)=> a.name.localeCompare(b.name)); break;
-        case 'name_desc': results.sort((a,b)=> b.name.localeCompare(a.name)); break;
-      }
-
-      listEl.innerHTML = '';
-      countEl.textContent = results.length;
-
-      if(results.length===0){
-        listEl.innerHTML = '<div class="small" style="padding:14px">該当する振り返りはありません。</div>';
-        return;
-      }
-
-      for(const r of results){
-        const entry = document.createElement('div');
-        entry.className = 'entry';
-        entry.innerHTML = `
-          <div class="left">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div>
-                <div style="font-weight:600">${escapeHtml(r.name)}</div>
-                <div class="meta">${escapeHtml(r.date)} ・ 登録: ${new Date(r.createdAt).toLocaleString()}</div>
-              </div>
-            </div>
-
-            <div class="text-block">
-              <div><strong>今日できたこと：</strong><div>${nl2br(escapeHtml(r.good) || '<span class=\"small\">(なし)</span>')}</div></div>
-              <div style="margin-top:8px"><strong>課題：</strong><div>${nl2br(escapeHtml(r.bad) || '<span class=\"small\">(なし)</span>')}</div></div>
-              <div style="margin-top:8px"><strong>明日の目標：</strong><div>${nl2br(escapeHtml(r.goal) || '<span class=\"small\">(なし)</span>')}</div></div>
-            </div>
-          </div>
-          <div class="right">
-            <div class="small">ID: ${r.id.slice(0,8)}</div>
-            <div style="display:flex;gap:8px">
-              <button data-action="edit" data-id="${r.id}" class="ghost">編集</button>
-              <button data-action="delete" data-id="${r.id}" class="ghost">削除</button>
-            </div>
-          </div>
-        `;
-
-        listEl.appendChild(entry);
-      }
-
-      // attach handlers
-      listEl.querySelectorAll('button[data-action]').forEach(btn=>{
-        const id = btn.getAttribute('data-id');
-        const act = btn.getAttribute('data-action');
-        btn.addEventListener('click', ()=>{
-          if(act==='delete'){
-            if(confirm('この振り返りを削除しますか？')){
-              deleteEntry(id);
-            }
-          }else if(act==='edit'){
-            startEdit(id);
-          }
-        });
-      });
-    }
-
-    function deleteEntry(id){
-      let arr = loadAll();
-      arr = arr.filter(x=>x.id!==id);
-      saveAll(arr);
-      renderList();
-    }
-
-    function startEdit(id){
-      const arr = loadAll();
-      const r = arr.find(x=>x.id===id);
-      if(!r) return;
-      nameInput.value = r.name;
-      dateInput.value = r.date;
-      goodInput.value = r.good;
-      badInput.value = r.bad;
-      goalInput.value = r.goal;
-      form.setAttribute('data-editing', id);
-      window.scrollTo({top:0,behavior:'smooth'});
-    }
-
-    // --- utilities ---
-    function generateId(){
-      return 'r_' + Math.random().toString(36).slice(2,11) + Date.now().toString(36).slice(-5);
-    }
-    function escapeHtml(s){
-      if(!s) return '';
-      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#39;');
-    }
-    function nl2br(s){
-      return s.replace(/\n/g,'<br>');
-    }
-
-    // --- filters handlers ---
-    filterName.addEventListener('input', renderList);
-    searchText.addEventListener('input', renderList);
-    sortBy.addEventListener('change', renderList);
-
-    // --- clear all ---
-    $('#clearAll').addEventListener('click', ()=>{
-      if(confirm('本当に全ての振り返りを削除しますか？（元に戻せません）')){
-        localStorage.removeItem(LS_KEY);
-        renderList();
-      }
-    });
-
-    // --- export / import ---
-    $('#exportBtn').addEventListener('click', ()=>{
-      const arr = loadAll();
-      const data = JSON.stringify(arr, null, 2);
-      // show in prompt for copy
-      const w = window.open('', '_blank', 'noopener');
-      w.document.write('<pre style="white-space:pre-wrap;word-break:break-word">' + escapeHtml(data) + '</pre>');
-      w.document.title = 'reflections-export.json';
-    });
-
-    $('#importBtn').addEventListener('click', ()=>{
-      const txt = prompt('貼り付けてインポートしてください（JSON形式）');
-      if(!txt) return;
-      try{
-        const parsed = JSON.parse(txt);
-        if(!Array.isArray(parsed)) throw new Error('配列である必要があります');
-        saveAll(parsed);
-        renderList();
-        alert('インポート完了');
-      }catch(e){
-        alert('インポートに失敗しました: ' + e.message);
-      }
-    });
-
-  </script>
 </body>
 </html>
