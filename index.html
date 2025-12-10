@@ -3,133 +3,136 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>評価入力＋レーダーチャート</title>
+<title>振り返りシート + 評価入力 + レーダーグラフ</title>
 <style>
- body { font-family: sans-serif; margin: 20px; }
- h2 { margin-top: 40px; }
- table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
- th, td { border: 1px solid #ccc; padding: 8px; vertical-align: top; }
- input[type="number"] { width: 60px; }
- #chartContainer { width: 400px; margin-top: 20px; }
+ body { font-family: sans-serif; padding: 20px; background: #f7f7f7; }
+ h2 { margin-top: 30px; }
+ .box { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+ label { display: block; margin-top: 10px; font-weight: bold; }
+ input, textarea, select { width: 100%; padding: 8px; margin-top: 5px; }
+ table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+ th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+ #chartArea { margin-top: 20px; }
+ button { padding: 8px 12px; margin-top: 10px; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-<h1>評価入力フォーム</h1>
-<p>各評価項目の右側に 1〜7 の数字を入力してください。</p>
+<h1>振り返りシート</h1>
+<div class="box">
+  <label>氏名</label>
+  <input id="name" />
 
-<table>
- <tr>
-  <th style="width:70%">評価項目と基準</th>
-  <th style="width:30%">評価 (1〜7)</th>
- </tr>
+  <label>日付</label>
+  <input id="date" type="date" />
 
- <!-- 1. 発言頻度と貢献性 -->
- <tr>
-  <td>
-   <strong>1. 発言頻度と貢献性</strong><br>
-   1: 発言なし<br>2: 稀、貢献ほぼなし<br>3: 時々発言、わずかに貢献<br>4: 定期的に発言、明確な貢献もあり<br>5: 頻繁に発言し方向性を導く<br>6: 非常に有益で議論を活性化<br>7: 議論の中心で質を高める
-  </td>
-  <td><input type="number" id="score1" min="1" max="7" /></td>
- </tr>
+  <label>今日できたこと</label>
+  <textarea id="good"></textarea>
 
- <!-- 2. 積極性と影響力 -->
- <tr>
-  <td>
-   <strong>2. 積極性と影響力</strong><br>
-   1: 消極的、影響なし<br>2: 限られた状況のみ<br>3: 積極性はあるが影響は限定的<br>4: チームの一部に影響<br>5: 複数に影響を与える<br>6: チーム議論に大きく影響<br>7: 議論の方向を変える
-  </td>
-  <td><input type="number" id="score2" min="1" max="7" /></td>
- </tr>
+  <label>今日の課題</label>
+  <textarea id="bad"></textarea>
 
- <!-- 3. コミュニケーション性と明瞭性 -->
- <tr>
-  <td>
-   <strong>3. コミュニケーション性と明瞭性</strong><br>
-   1: 非常に不明瞭<br>2: 混乱を招く<br>3: 基本情報のみ伝わる<br>4: 大部分明確<br>5: 明瞭で正確<br>6: 非常に明確<br>7: 極めてクリア
-  </td>
-  <td><input type="number" id="score3" min="1" max="7" /></td>
- </tr>
+  <label>明日の目標</label>
+  <textarea id="goal"></textarea>
 
- <!-- 4. 受容性と反応性 -->
- <tr>
-  <td>
-   <strong>4. 受容性と反応性</strong><br>
-   1: 全く受容しない<br>2: 否定的発言が多い<br>3: 部分的に受容するが行動なし<br>4: 一定程度受け入れる<br>5: 積極的に受け入れる<br>6: 迅速に反応し建設的<br>7: 意見を求め改善を促す
-  </td>
-  <td><input type="number" id="score4" min="1" max="7" /></td>
- </tr>
-
- <!-- 5. 協調性とチーム連携性 -->
- <tr>
-  <td>
-   <strong>5. 協調性とチーム連携性</strong><br>
-   1: 全く連携しない<br>2: 姿勢はあるが連携不足<br>3: 協力はあるが摩擦もある<br>4: 協調的で円滑に連携<br>5: 他者と円滑に進行<br>6: 高い協調性で推進力<br>7: 結束を高める発言
-  </td>
-  <td><input type="number" id="score5" min="1" max="7" /></td>
- </tr>
-
- <!-- ファシリテーター評価 -->
- <tr>
-  <td>
-   <strong>ファシリテーター評価</strong><br>
-   1: 目的不明・脱線多い<br>2: 進行不十分・脱線多い<br>3: 部分的に目的明確・脱線もある<br>4: 意見を部分的に引き出す<br>5: 目的を提示し意見を出しやすい場を作る<br>6: 議論活性・脱線防止<br>7: 全員の意見を引き出し結論に導く
-  </td>
-  <td><input type="number" id="score6" min="1" max="7" /></td>
- </tr>
-</table>
-
-<button onclick="drawChart()">レーダーチャート作成</button>
-
-<div id="chartContainer">
- <canvas id="radarChart"></canvas>
+  <button onclick="saveData()">保存</button>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<h2>評価入力（1〜7）</h2>
+<div class="box">
+  <table>
+    <tr><th>項目</th><th>評価</th></tr>
+    <tr><td>発言頻度と貢献性</td><td><input type="number" id="s1" min="1" max="7"></td></tr>
+    <tr><td>積極性と影響力</td><td><input type="number" id="s2" min="1" max="7"></td></tr>
+    <tr><td>コミュニケーション性と明瞭性</td><td><input type="number" id="s3" min="1" max="7"></td></tr>
+    <tr><td>受容性と反応性</td><td><input type="number" id="s4" min="1" max="7"></td></tr>
+    <tr><td>協調性とチーム連携性</td><td><input type="number" id="s5" min="1" max="7"></td></tr>
+    <tr><td>ファシリテーター適性</td><td><input type="number" id="s6" min="1" max="7"></td></tr>
+  </table>
+  <button onclick="drawChart()">レーダーグラフ生成</button>
+</div>
+
+<div id="chartArea" class="box">
+  <canvas id="radarChart"></canvas>
+</div>
+
+<h2>保存一覧</h2>
+<div class="box">
+  <table id="listTable">
+    <tr><th>氏名</th><th>日付</th><th>できたこと</th><th>課題</th><th>目標</th></tr>
+  </table>
+</div>
+
 <script>
-function drawChart() {
-  const labels = [
-    "発言頻度と貢献性",
-    "積極性と影響力",
-    "コミュニケーション性",
-    "受容性と反応性",
-    "協調性と連携性",
-    "ファシリテーター適性"
-  ];
+function saveData() {
+  const data = {
+    name: document.getElementById('name').value,
+    date: document.getElementById('date').value,
+    good: document.getElementById('good').value,
+    bad: document.getElementById('bad').value,
+    goal: document.getElementById('goal').value
+  };
+  const list = JSON.parse(localStorage.getItem('reflection') || '[]');
+  list.push(data);
+  localStorage.setItem('reflection', JSON.stringify(list));
+  alert('保存しました');
+  loadList();
+}
 
-  const data = [
-    Number(document.getElementById("score1").value || 0),
-    Number(document.getElementById("score2").value || 0),
-    Number(document.getElementById("score3").value || 0),
-    Number(document.getElementById("score4").value || 0),
-    Number(document.getElementById("score5").value || 0),
-    Number(document.getElementById("score6").value || 0)
-  ];
-
-  const ctx = document.getElementById("radarChart");
-
-  new Chart(ctx, {
-    type: "radar",
-    data: {
-      labels: labels,
-      datasets: [{
-        label: "評価レーダーチャート",
-        data: data,
-        fill: true,
-        borderWidth: 2
-      }]
-    },
-    options: {
-      scales: {
-        r: {
-          min: 0,
-          max: 7,
-          ticks: { stepSize: 1 }
-        }
-      }
-    }
+function loadList() {
+  const list = JSON.parse(localStorage.getItem('reflection') || '[]');
+  const table = document.getElementById('listTable');
+  table.innerHTML = '<tr><th>氏名</th><th>日付</th><th>できたこと</th><th>課題</th><th>目標</th></tr>';
+  list.forEach(item => {
+    const row = `<tr>
+      <td>${item.name}</td>
+      <td>${item.date}</td>
+      <td>${item.good}</td>
+      <td>${item.bad}</td>
+      <td>${item.goal}</td>
+    </tr>`;
+    table.innerHTML += row;
   });
 }
-</script>
 
+let chart;
+function drawChart() {
+  const scores = [
+    s1.value || 0,
+    s2.value || 0,
+    s3.value || 0,
+    s4.value || 0,
+    s5.value || 0,
+    s6.value || 0
+  ];
+
+  const ctx = document.getElementById('radarChart');
+  if (chart) chart.destroy();
+
+  chart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: [
+        '発言頻度と貢献性',
+        '積極性と影響力',
+        'コミュニケーション性',
+        '受容性と反応性',
+        '協調性と連携性',
+        'ファシリテーター適性'
+      ],
+      datasets: [{
+        label: '評価',
+        data: scores,
+        fill: true,
+        backgroundColor: 'rgba(54,162,235,0.2)',
+        borderColor: 'rgb(54,162,235)'
+      }]
+    },
+    options: { scales: { r: { min: 0, max: 7, ticks: { stepSize: 1 } } } }
+  });
+}
+
+loadList();
+</script>
 </body>
 </html>
