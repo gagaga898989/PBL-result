@@ -1,30 +1,45 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>振り返りシート + 評価入力 + レーダーグラフ</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>振り返りシート + 評価 + グラフ</title>
 <style>
- body { font-family: sans-serif; padding: 20px; background: #f7f7f7; }
- h2 { margin-top: 30px; }
- .box { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
- label { display: block; margin-top: 10px; font-weight: bold; }
- input, textarea, select { width: 100%; padding: 8px; margin-top: 5px; }
- table { width: 100%; border-collapse: collapse; margin-top: 10px; }
- th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
- #chartArea { margin-top: 20px; }
- button { padding: 8px 12px; margin-top: 10px; }
+  body { font-family: "Segoe UI", sans-serif; background: #eef1f5; margin: 0; padding: 20px; }
+  h1, h2 { text-align: center; }
+
+  .section {
+    max-width: 900px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  }
+  label { font-weight: bold; margin-top: 10px; display: block; }
+  input, textarea { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
+  textarea { height: 70px; }
+  button { padding: 10px 20px; background: #1976d2; color: #fff; border: none; border-radius: 6px; cursor: pointer; margin-top: 15px; }
+  button:hover { opacity: 0.9; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { border: 1px solid #ccc; padding: 8px; background: #fff; }
+  th { background: #f0f0f0; }
+
+  .eval-table input { width: 70px; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-<h1>振り返りシート</h1>
-<div class="box">
+<h1>振り返り入力システム</h1>
+
+<div class="section">
+  <h2>振り返りシート</h2>
   <label>氏名</label>
-  <input id="name" />
+  <input id="name">
 
   <label>日付</label>
-  <input id="date" type="date" />
+  <input id="date" type="date">
 
   <label>今日できたこと</label>
   <textarea id="good"></textarea>
@@ -38,26 +53,27 @@
   <button onclick="saveData()">保存</button>
 </div>
 
-<h2>評価入力（1〜7）</h2>
-<div class="box">
-  <table>
+<div class="section">
+  <h2>評価入力（1〜7）</h2>
+  <table class="eval-table">
     <tr><th>項目</th><th>評価</th></tr>
     <tr><td>発言頻度と貢献性</td><td><input type="number" id="s1" min="1" max="7"></td></tr>
     <tr><td>積極性と影響力</td><td><input type="number" id="s2" min="1" max="7"></td></tr>
-    <tr><td>コミュニケーション性と明瞭性</td><td><input type="number" id="s3" min="1" max="7"></td></tr>
+    <tr><td>コミュニケーション性</td><td><input type="number" id="s3" min="1" max="7"></td></tr>
     <tr><td>受容性と反応性</td><td><input type="number" id="s4" min="1" max="7"></td></tr>
-    <tr><td>協調性とチーム連携性</td><td><input type="number" id="s5" min="1" max="7"></td></tr>
+    <tr><td>協調性と連携性</td><td><input type="number" id="s5" min="1" max="7"></td></tr>
     <tr><td>ファシリテーター適性</td><td><input type="number" id="s6" min="1" max="7"></td></tr>
   </table>
   <button onclick="drawChart()">レーダーグラフ生成</button>
 </div>
 
-<div id="chartArea" class="box">
+<div class="section">
+  <h2>レーダーグラフ</h2>
   <canvas id="radarChart"></canvas>
 </div>
 
-<h2>保存一覧</h2>
-<div class="box">
+<div class="section">
+  <h2>保存一覧</h2>
   <table id="listTable">
     <tr><th>氏名</th><th>日付</th><th>できたこと</th><th>課題</th><th>目標</th></tr>
   </table>
@@ -66,60 +82,40 @@
 <script>
 function saveData() {
   const data = {
-    name: document.getElementById('name').value,
-    date: document.getElementById('date').value,
-    good: document.getElementById('good').value,
-    bad: document.getElementById('bad').value,
-    goal: document.getElementById('goal').value
+    name: name.value,
+    date: date.value,
+    good: good.value,
+    bad: bad.value,
+    goal: goal.value
   };
   const list = JSON.parse(localStorage.getItem('reflection') || '[]');
   list.push(data);
   localStorage.setItem('reflection', JSON.stringify(list));
-  alert('保存しました');
   loadList();
+  alert('保存しました');
 }
-
 function loadList() {
   const list = JSON.parse(localStorage.getItem('reflection') || '[]');
-  const table = document.getElementById('listTable');
-  table.innerHTML = '<tr><th>氏名</th><th>日付</th><th>できたこと</th><th>課題</th><th>目標</th></tr>';
-  list.forEach(item => {
-    const row = `<tr>
-      <td>${item.name}</td>
-      <td>${item.date}</td>
-      <td>${item.good}</td>
-      <td>${item.bad}</td>
-      <td>${item.goal}</td>
+  listTable.innerHTML = '<tr><th>氏名</th><th>日付</th><th>できたこと</th><th>課題</th><th>目標</th></tr>';
+  list.forEach(row => {
+    listTable.innerHTML += `<tr>
+      <td>${row.name}</td>
+      <td>${row.date}</td>
+      <td>${row.good}</td>
+      <td>${row.bad}</td>
+      <td>${row.goal}</td>
     </tr>`;
-    table.innerHTML += row;
   });
 }
 
 let chart;
 function drawChart() {
-  const scores = [
-    s1.value || 0,
-    s2.value || 0,
-    s3.value || 0,
-    s4.value || 0,
-    s5.value || 0,
-    s6.value || 0
-  ];
-
-  const ctx = document.getElementById('radarChart');
+  const scores = [s1.value, s2.value, s3.value, s4.value, s5.value, s6.value];
   if (chart) chart.destroy();
-
-  chart = new Chart(ctx, {
+  chart = new Chart(radarChart, {
     type: 'radar',
     data: {
-      labels: [
-        '発言頻度と貢献性',
-        '積極性と影響力',
-        'コミュニケーション性',
-        '受容性と反応性',
-        '協調性と連携性',
-        'ファシリテーター適性'
-      ],
+      labels: ['発言頻度', '積極性', 'コミュ力', '受容性', '協調性', 'ファシリ適性'],
       datasets: [{
         label: '評価',
         data: scores,
@@ -128,7 +124,7 @@ function drawChart() {
         borderColor: 'rgb(54,162,235)'
       }]
     },
-    options: { scales: { r: { min: 0, max: 7, ticks: { stepSize: 1 } } } }
+    options: { scales: { r: { min: 0, max: 7 } } }
   });
 }
 
