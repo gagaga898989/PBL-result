@@ -1,128 +1,122 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>振り返りシート + 評価 + グラフ</title>
-<style>
-  body { font-family: "Segoe UI", sans-serif; background: linear-gradient(135deg,#ffecd2,#fcb69f,#a1c4fd,#c2e9fb); margin: 0; padding: 20px; background-size: 400% 400%; animation: bgmove 12s ease infinite; }
-  h1, h2 { text-align: center; }
+"use client";
 
-  .section { max-width: 900px; margin: 20px auto; background: linear-gradient(135deg,#ffffff,#fef6ff,#f0f9ff); padding: 20px; border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); border: 2px solid #fff; }
-  label { font-weight: bold; margin-top: 10px; display: block; }
-  input, textarea { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
-  textarea { height: 70px; }
-  button { padding: 12px 22px; background: linear-gradient(135deg,#ff9a9e,#fad0c4,#fbc2eb,#a18cd1); color: #fff; border: none; border-radius: 10px; cursor: pointer; margin-top: 15px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-  button:hover { opacity: 0.85; transform: translateY(-2px); transition: 0.2s; }
+import { useState } from "react";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
-  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-  th, td { border: 1px solid #ccc; padding: 8px; background: #fff; }
-  th { background: #f0f0f0; }
+ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip, Legend);
 
-  .eval-table input { width: 70px; }
-@keyframes bgmove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-</style>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-<h1>振り返り入力システム</h1>
+export default function ReflectionSheet() {
+  const [title, setTitle] = useState("");
+  const [goodPoints, setGoodPoints] = useState("");
+  const [improvePoints, setImprovePoints] = useState("");
 
-<div class="section">
-  <h2>振り返りシート</h2>
-  <label>氏名</label>
-  <input id="name">
+  const [itemName, setItemName] = useState("");
+  const [itemValue, setItemValue] = useState("");
+  const [records, setRecords] = useState<{ label: string; value: number }[]>([]);
 
-  <label>日付</label>
-  <input id="date" type="date">
-
-  <label>今日できたこと</label>
-  <textarea id="good"></textarea>
-
-  <label>今日の課題</label>
-  <textarea id="bad"></textarea>
-
-  <label>明日の目標</label>
-  <textarea id="goal"></textarea>
-
-  <button onclick="saveData()">保存</button>
-</div>
-
-<div class="section">
-  <h2>評価入力（1〜7）</h2>
-  <table class="eval-table">
-    <tr><th>項目</th><th>評価</th></tr>
-    <tr><td>発言頻度と貢献性</td><td><input type="number" id="s1" min="1" max="7"></td></tr>
-    <tr><td>積極性と影響力</td><td><input type="number" id="s2" min="1" max="7"></td></tr>
-    <tr><td>コミュニケーション性</td><td><input type="number" id="s3" min="1" max="7"></td></tr>
-    <tr><td>受容性と反応性</td><td><input type="number" id="s4" min="1" max="7"></td></tr>
-    <tr><td>協調性と連携性</td><td><input type="number" id="s5" min="1" max="7"></td></tr>
-    <tr><td>ファシリテーター適性</td><td><input type="number" id="s6" min="1" max="7"></td></tr>
-  </table>
-  <button onclick="drawChart()">レーダーグラフ生成</button>
-</div>
-
-<div class="section">
-  <h2>レーダーグラフ</h2>
-  <canvas id="radarChart"></canvas>
-</div>
-
-<div class="section">
-  <h2>保存一覧</h2>
-  <table id="listTable">
-    <tr><th>氏名</th><th>日付</th><th>できたこと</th><th>課題</th><th>目標</th></tr>
-  </table>
-</div>
-
-<script>
-function saveData() {
-  const data = {
-    name: name.value,
-    date: date.value,
-    good: good.value,
-    bad: bad.value,
-    goal: goal.value
+  const addRecord = () => {
+    if (!itemName || !itemValue) return;
+    setRecords([...records, { label: itemName, value: Number(itemValue) }]);
+    setItemName("");
+    setItemValue("");
   };
-  const list = JSON.parse(localStorage.getItem('reflection') || '[]');
-  list.push(data);
-  localStorage.setItem('reflection', JSON.stringify(list));
-  loadList();
-  alert('保存しました');
-}
-function loadList() {
-  const list = JSON.parse(localStorage.getItem('reflection') || '[]');
-  listTable.innerHTML = '<tr><th>氏名</th><th>日付</th><th>できたこと</th><th>課題</th><th>目標</th></tr>';
-  list.forEach(row => {
-    listTable.innerHTML += `<tr>
-      <td>${row.name}</td>
-      <td>${row.date}</td>
-      <td>${row.good}</td>
-      <td>${row.bad}</td>
-      <td>${row.goal}</td>
-    </tr>`;
-  });
-}
 
-let chart;
-function drawChart() {
-  const scores = [s1.value, s2.value, s3.value, s4.value, s5.value, s6.value];
-  if (chart) chart.destroy();
-  chart = new Chart(radarChart, {
-    type: 'radar',
-    data: {
-      labels: ['発言頻度', '積極性', 'コミュ力', '受容性', '協調性', 'ファシリ適性'],
-      datasets: [{
-        label: '評価',
-        data: scores,
-        fill: true,
-        backgroundColor: 'rgba(54,162,235,0.2)',
-        borderColor: 'rgb(54,162,235)'
-      }]
-    },
-    options: { scales: { r: { min: 0, max: 7 } } }
-  });
-}
+  const chartData = {
+    labels: records.map((r) => r.label),
+    datasets: [
+      {
+        label: "記録値",
+        data: records.map((r) => r.value),
+        borderWidth: 3,
+        tension: 0.3,
+      },
+    ],
+  };
 
-loadList();
-</script>
-</body>
-</html>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-blue-50 to-violet-50 p-6">
+      <div className="max-w-3xl mx-auto space-y-8">
+
+        {/* タイトルカード */}
+        <div className="bg-white/80 shadow-lg rounded-2xl p-6 border border-pink-100">
+          <h2 className="text-2xl font-bold text-pink-700 mb-3">🔖 振り返りタイトル</h2>
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full p-3 rounded-xl border border-pink-200 bg-pink-50 focus:ring-2 focus:ring-pink-300"
+            placeholder="例：今日の振り返り"
+          />
+        </div>
+
+        {/* 良かった点 */}
+        <div className="bg-white/80 shadow-lg rounded-2xl p-6 border border-blue-100">
+          <h2 className="text-2xl font-bold text-blue-700 mb-3">🌟 良かった点</h2>
+          <textarea
+            value={goodPoints}
+            onChange={(e) => setGoodPoints(e.target.value)}
+            className="w-full p-3 rounded-xl border border-blue-200 bg-blue-50 h-28 focus:ring-2 focus:ring-blue-300"
+            placeholder="良かったことを書いてください"
+          />
+        </div>
+
+        {/* 改善点 */}
+        <div className="bg-white/80 shadow-lg rounded-2xl p-6 border border-violet-100">
+          <h2 className="text-2xl font-bold text-violet-700 mb-3">🔧 改善点</h2>
+          <textarea
+            value={improvePoints}
+            onChange={(e) => setImprovePoints(e.target.value)}
+            className="w-full p-3 rounded-xl border border-violet-200 bg-violet-50 h-28 focus:ring-2 focus:ring-violet-300"
+            placeholder="改善したい点を書いてください"
+          />
+        </div>
+
+        {/* 入力項目カード */}
+        <div className="bg-white/80 shadow-lg rounded-2xl p-6 border border-teal-100">
+          <h2 className="text-2xl font-bold text-teal-700 mb-4">📊 記録項目の入力</h2>
+
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              value={itemName}
+              onChange={(e) => setItemName(e.target.value)}
+              className="p-3 rounded-xl border border-teal-200 bg-teal-50 focus:ring-2 focus:ring-teal-300"
+              placeholder="項目名（例：理解度）"
+            />
+            <input
+              value={itemValue}
+              onChange={(e) => setItemValue(e.target.value)}
+              type="number"
+              className="p-3 rounded-xl border border-teal-200 bg-teal-50 focus:ring-2 focus:ring-teal-300"
+              placeholder="数値（例：80）"
+            />
+          </div>
+
+          <button
+            onClick={addRecord}
+            className="mt-4 px-4 py-2 bg-teal-500 text-white rounded-xl shadow hover:bg-teal-600"
+          >
+            追加
+          </button>
+        </div>
+
+        {/* グラフ */}
+        <div className="bg-white/80 shadow-lg rounded-2xl p-6 border border-yellow-100">
+          <h2 className="text-2xl font-bold text-yellow-700 mb-4">📈 グラフ表示</h2>
+          {records.length === 0 ? (
+            <p className="text-gray-500">記録を追加するとグラフが表示されます。</p>
+          ) : (
+            <Line data={chartData} />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
